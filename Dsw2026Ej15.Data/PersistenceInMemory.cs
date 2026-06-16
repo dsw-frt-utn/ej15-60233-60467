@@ -2,6 +2,7 @@
 using Dsw2026Ej15.Data.Interfaces;
 using Dsw2026Ej15.Domain.Entities;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Dsw2026Ej15.Data
 {
@@ -72,9 +73,11 @@ namespace Dsw2026Ej15.Data
         //Funcion de carga de datos Json
         private List<T>? CargarDatosDeArchivo<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
         {
-            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Sources", $"{file}.json");
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Sources", $"{file}.json");//bin/debug/10 ahi tiene que buscar
+            //En clase el combine , en el parametro string va "sources","specialities"
             string jsonContent = File.ReadAllText(jsonPath);
-            return JsonSerializer.Deserialize<List<T>>(jsonContent);
+            return JsonSerializer.Deserialize<List<T>>(jsonContent); //Aqui el profesor puso un parametro para que no importe si esta en mayuscula o minuscula.
+            { }
         }
         #endregion
         #region //InicializarDatos
@@ -84,5 +87,7 @@ namespace Dsw2026Ej15.Data
             InicializarSpecialities();
         }
         #endregion
+        
+        
     }
 }

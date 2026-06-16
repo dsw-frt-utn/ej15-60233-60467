@@ -11,5 +11,8 @@ namespace Dsw2026Ej15.Data.Dtos
         public String? Description { get; set; }
         public Guid id { get; set; }
 
+
+        //Usa record el profesor.
+        //internal record SpecialityDto(Guid Id,string Name, string Description)
     }
 }

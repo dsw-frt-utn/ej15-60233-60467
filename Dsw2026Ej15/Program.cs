@@ -1,4 +1,6 @@
-﻿using System.Transactions;
+﻿using Dsw2026Ej15.Data;
+using Dsw2026Ej15.Data.Interfaces;
+using System.Transactions;
 
 namespace Dsw2026Ej15
 {
@@ -6,8 +8,8 @@ namespace Dsw2026Ej15
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
-            
+            IPersistence p = new PersistenceInMemory();
+            Console.WriteLine(p.GetSpecialities().ToString());            
             
         }
     }
