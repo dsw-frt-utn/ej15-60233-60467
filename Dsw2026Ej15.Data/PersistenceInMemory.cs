@@ -1,12 +1,13 @@
 ﻿using Dsw2026Ej15.Data.Dtos;
-using Dsw2026Ej15.Data.Interfaces;
 using Dsw2026Ej15.Domain.Entities;
+using Dsw2026Ej15.Domain.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dsw2026Ej15.Data
 {
-    public class PersistenceInMemory : IPersistence
+    public class PersistenceInMemory : IPersistenceInMemory
     {
         #region //atributos de clase
         private readonly List<Doctor> doctores = new List<Doctor>();
@@ -20,7 +21,22 @@ namespace Dsw2026Ej15.Data
         #endregion
         #region //Getters.
         public List<Doctor> GetDoctors() => doctores;
-        //public List<Doctor> GetDoctorsById(Guid id) => doctores. Hace Falta? 
+
+        public List<Doctor> DeleteById(Guid id)
+        {
+           doctores.RemoveAll(x=>x.Id == id );
+            return doctores;
+        }
+        public Speciality? GetSpecialityById(Guid id)
+        {
+
+            return specialities.SingleOrDefault(x => x.Id == id);
+        }
+
+        public Doctor? GetDoctorById(Guid id)
+        {
+            return doctores.SingleOrDefault(x => x.Id == id);
+        }
         public List<Speciality> GetSpecialities() => specialities; //Es lo mismo que LoadSpecialities? 
         #endregion 
         #region //añadir doctor
@@ -40,7 +56,7 @@ namespace Dsw2026Ej15.Data
         #region //InicializarEntidades
         private void InicializarDoctores()
         {
-            var doctoresdtos = CargarDatosDeArchivo<DoctorDtos>("doctores");
+            var doctoresdtos = CargarDatosDeDoctores<DoctorDtos>("doctores");
             if (doctoresdtos != null)
             {
                 foreach (var data in doctoresdtos)
@@ -56,7 +72,7 @@ namespace Dsw2026Ej15.Data
         }
         private void InicializarSpecialities()
         {
-            var specialitieData = CargarDatosDeArchivo<Speciality>("especialidades");
+            var specialitieData = CargarDatosDeEspecialidades<Speciality>("especialidades");
 
             if (specialitieData != null)
             {
@@ -71,13 +87,19 @@ namespace Dsw2026Ej15.Data
         #endregion
         #region //LectorJson
         //Funcion de carga de datos Json
-        private List<T>? CargarDatosDeArchivo<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
+        private List<T>? CargarDatosDeEspecialidades<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
         {
-            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Sources", $"{file}.json");//bin/debug/10 ahi tiene que buscar
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "specialities.json");
             //En clase el combine , en el parametro string va "sources","specialities"
             string jsonContent = File.ReadAllText(jsonPath);
-            return JsonSerializer.Deserialize<List<T>>(jsonContent); //Aqui el profesor puso un parametro para que no importe si esta en mayuscula o minuscula.
-            { }
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            return JsonSerializer.Deserialize<List<T>>(jsonContent, options); //Aqui el profesor puso un parametro para que no importe si esta en mayuscula o minuscula.
+            
+                
+        
         }
         #endregion
         #region //InicializarDatos
@@ -86,8 +108,19 @@ namespace Dsw2026Ej15.Data
             InicializarDoctores();
             InicializarSpecialities();
         }
+        private List<T>? CargarDatosDeDoctores<T>(string file)
+        {
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "doctores.json");
+            //En clase el combine , en el parametro string va "sources","specialities"
+            string jsonContent = File.ReadAllText(jsonPath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            return JsonSerializer.Deserialize<List<T>>(jsonContent, options);
+        }
         #endregion
-        
-        
+
+
     }
 }

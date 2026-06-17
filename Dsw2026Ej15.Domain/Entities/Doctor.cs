@@ -8,14 +8,14 @@ namespace Dsw2026Ej15.Domain.Entities
     {
 
         public  string? Name { get; init; }
-        public  string? LicenceNumber {  get; init; } //Para que servia el Init?
+        public  string? LicenseNumber {  get; init; } //Para que servia el Init?
         public bool IsActive {  get; init; }
         Speciality? Speciality { get; init; }
 
-        public Doctor(string name, string licenceNumber,bool isActive, Speciality speciality,Guid? id = null): base(id)
+        public Doctor(string name, string licenseNumber,bool isActive, Speciality speciality,Guid? id = null): base(id)
         {
             Name = name;
-            LicenceNumber = licenceNumber;
+            LicenseNumber = licenseNumber;
             IsActive = isActive;
             Speciality = speciality;
             

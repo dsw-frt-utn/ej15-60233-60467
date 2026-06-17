@@ -1,6 +1,10 @@
 ﻿namespace Dsw2026Ej15.Api.models
 {
-    public class DoctorModel
+    public record DoctorModel
     {
+        public record Request(string Name, string LicenseNumber, Guid SpecialityID);
+        public record Response(string Name, string LicenseNumber, bool isActive, Guid SpecialityID);
+
     }
+   
 }
