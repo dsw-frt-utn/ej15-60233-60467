@@ -2,6 +2,7 @@ using Dsw2026Ej15.Api.models;
 using Dsw2026Ej15.Domain.Entities;
 using Dsw2026Ej15.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Dsw2026Ej15.Api.Controllers
 {
@@ -24,7 +25,7 @@ namespace Dsw2026Ej15.Api.Controllers
             if (request == null) return BadRequest("Body mal formado");
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
             {
-                return BadRequest("Nombre o numero de licencia vacio");
+                throw new ValidationException("Campos Vacios. Completar e intentar de nuevo"); //Aqui tira excepciones throw new ValidationException("")
             }
             // Era Ok Antes: Devuelvo un 201. Este ok puede devolverse como string o , en algunos casos Json.
 
@@ -32,7 +33,7 @@ namespace Dsw2026Ej15.Api.Controllers
 
             if (speciality == null)
             {
-                return BadRequest("La especialidad no existe");
+                throw new ValidationException("Campo de especialidad no coincide"); 
 
             }
             var doctor = new Doctor(request.Name, request.LicenseNumber, request.isActive, speciality);
