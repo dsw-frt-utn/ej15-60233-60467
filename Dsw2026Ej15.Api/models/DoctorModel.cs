@@ -2,8 +2,8 @@
 {
     public record DoctorModel
     {
-        public record Request(string Name, string LicenseNumber, Guid SpecialityID);
-        public record Response(string Name, string LicenseNumber, bool isActive, Guid SpecialityID);
+        public record Request(string? Name, string LicenseNumber, bool isActive, Guid SpecialityID);
+        public record Response(string? Name, string LicenseNumber, bool isActive, Guid SpecialityID);
 
     }
    

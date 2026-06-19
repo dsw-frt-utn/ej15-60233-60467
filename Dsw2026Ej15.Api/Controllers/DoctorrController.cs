@@ -22,9 +22,10 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateDoctor([FromBody] DoctorModel.Request request)
         {
+            if (request == null) return BadRequest("Body mal formado");
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
             {
-                return BadRequest();
+                return BadRequest("Nombre o numero de licencia vacio");
             }
            // Era Ok Antes: Devuelvo un 201. Este ok puede devolverse como string o , en algunos casos Json.
 
@@ -35,7 +36,19 @@ namespace Dsw2026Ej15.Api.Controllers
                 return BadRequest("La especialidad no existe");
 
             }
-            return Created(); 
+            var doctor = new Doctor(request.Name, request.LicenseNumber, request.isActive, speciality);
+            
+            if (_persistence.AddDoctor(doctor) == true)
+            {
+                foreach (var d in _persistence.GetDoctors())
+                {
+                    Console.WriteLine($"{d.Name}, {d.IsActive}");
+                } 
+                return Created();
+                
+            }
+            return BadRequest("no se esta cargando el doctor, corroborar");
+            
         }
         [HttpGet]
         public async Task<IActionResult> GetDoctor(DoctorModel.Response response)
@@ -52,6 +65,7 @@ namespace Dsw2026Ej15.Api.Controllers
                 d.LicenseNumber,
                 d.IsActive, 
                 d.Id));
+
             return Ok(resultado); 
            
 
@@ -71,12 +85,17 @@ namespace Dsw2026Ej15.Api.Controllers
         [Route("api/doctors/{id}")]
         public async Task<IActionResult> DeleteDoctorByID(Guid id)
         {
-            var deleteados = _persistence.DeleteById(id);
-            var doctoredelete = deleteados.Where(p => p.IsActive == true);
-            if (doctoredelete == null || !doctoredelete.Any() )
+            var doctor = _persistence.GetDoctors().FirstOrDefault(p => p.Id == id);
+            if (doctor == null || !doctor.IsActive )
             {
                 return NotFound("El doctor no esta activo o no existe");
             }
+            _persistence.DeleteById(id);
+            foreach (var d in _persistence.GetDoctors())
+            {
+                Console.WriteLine($"eliminado: {d.IsActive}");
+            }
+            
             return NoContent();
         }
     }

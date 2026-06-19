@@ -24,7 +24,8 @@ namespace Dsw2026Ej15.Data
 
         public List<Doctor> DeleteById(Guid id)
         {
-           doctores.RemoveAll(x=>x.Id == id );
+         var d=  doctores.FirstOrDefault(x=>x.Id == id );
+            if (d != null) { d.IsActive = false; }
             return doctores;
         }
         public Speciality? GetSpecialityById(Guid id)
@@ -56,7 +57,7 @@ namespace Dsw2026Ej15.Data
         #region //InicializarEntidades
         private void InicializarDoctores()
         {
-            var doctoresdtos = CargarDatosDeDoctores<DoctorDtos>("doctores");
+            var doctoresdtos = CargarDatosDeArchivos<DoctorDtos>("doctores");
             if (doctoresdtos != null)
             {
                 foreach (var data in doctoresdtos)
@@ -72,13 +73,13 @@ namespace Dsw2026Ej15.Data
         }
         private void InicializarSpecialities()
         {
-            var specialitieData = CargarDatosDeEspecialidades<Speciality>("especialidades");
+            var specialitieData = CargarDatosDeArchivos<SpecialityDtos>("especialidades");
 
             if (specialitieData != null)
             {
                 foreach (var data in specialitieData)
                 {
-                    Speciality s = new Speciality(data.Name, data.Description, data.Id);
+                    Speciality s = new Speciality(data.Name, data.Description, data.id);
                     specialities.Add(s);
                 }
             }
@@ -87,7 +88,7 @@ namespace Dsw2026Ej15.Data
         #endregion
         #region //LectorJson
         //Funcion de carga de datos Json
-        private List<T>? CargarDatosDeEspecialidades<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
+        private List<T>? CargarDatosDeArchivos<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
         {
             string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "specialities.json");
             //En clase el combine , en el parametro string va "sources","specialities"
@@ -108,17 +109,7 @@ namespace Dsw2026Ej15.Data
             InicializarDoctores();
             InicializarSpecialities();
         }
-        private List<T>? CargarDatosDeDoctores<T>(string file)
-        {
-            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "doctores.json");
-            //En clase el combine , en el parametro string va "sources","specialities"
-            string jsonContent = File.ReadAllText(jsonPath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            return JsonSerializer.Deserialize<List<T>>(jsonContent, options);
-        }
+
         #endregion
 
 

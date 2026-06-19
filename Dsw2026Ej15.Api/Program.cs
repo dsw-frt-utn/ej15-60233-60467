@@ -8,15 +8,15 @@ namespace Dsw2026Ej15.Api
     {
         public static void Main(string[] args)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton<IPersistenceInMemory, PersistenceInMemory>();
-            var serviceProvider = services.BuildServiceProvider();
-            var persistencia = serviceProvider.GetService<IPersistenceInMemory>(); //CONSULTAR SOBRE LA ASIGNACION DE SERVICEPROVIDER
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true);
+            
+            builder.Services.AddSingleton<IPersistenceInMemory, PersistenceInMemory>();
+           
+             //CONSULTAR SOBRE LA ASIGNACION DE SERVICEPROVIDER
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddSwaggerGen();
 
