@@ -1,5 +1,4 @@
 using Dsw2026Ej15.Api.models;
-using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Domain.Entities;
 using Dsw2026Ej15.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +26,7 @@ namespace Dsw2026Ej15.Api.Controllers
             {
                 return BadRequest("Nombre o numero de licencia vacio");
             }
-           // Era Ok Antes: Devuelvo un 201. Este ok puede devolverse como string o , en algunos casos Json.
+            // Era Ok Antes: Devuelvo un 201. Este ok puede devolverse como string o , en algunos casos Json.
 
             var speciality = _persistence.GetSpecialityById(request.SpecialityID);
 
@@ -37,56 +36,62 @@ namespace Dsw2026Ej15.Api.Controllers
 
             }
             var doctor = new Doctor(request.Name, request.LicenseNumber, request.isActive, speciality);
-            
+
             if (_persistence.AddDoctor(doctor) == true)
             {
                 foreach (var d in _persistence.GetDoctors())
                 {
                     Console.WriteLine($"{d.Name}, {d.IsActive}");
-                } 
-                return Created();
-                
+                }
+                return Created($"/api/doctors/{doctor.Id}", new DoctorModel.Response(
+        doctor.Name,
+        doctor.LicenseNumber,
+        doctor.IsActive,
+        doctor.Id
+    ));
+
             }
             return BadRequest("no se esta cargando el doctor, corroborar");
-            
+
         }
         [HttpGet]
-        public async Task<IActionResult> GetDoctor(DoctorModel.Response response)
+        public async Task<IActionResult> GetDoctor()
         {
 
             var doctores = _persistence.GetDoctors();
             var activos = doctores.Where(p => p.IsActive == true);
-            if (!activos.Any() )
+            if (!activos.Any())
             {
-               return BadRequest("No hay medicos activos");
+                return BadRequest("No hay medicos activos");
             }
             var resultado = activos.Select(d => new DoctorModel.Response(
-                d.Name, 
+                d.Name,
                 d.LicenseNumber,
-                d.IsActive, 
+                d.IsActive,
                 d.Id));
 
-            return Ok(resultado); 
-           
+            return Ok(resultado);
+
 
         }
-        [HttpGet]
-        [Route("api/doctors/{id}")]
+
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetDoctorByID(Guid id)
         {
             var idDoc = _persistence.GetDoctorById(id);
-            if (idDoc == null || !idDoc.IsActive) {
+            if (idDoc == null || !idDoc.IsActive)
+            {
                 return NotFound("El doctor no esta activo o no existe");
             }
-            var doctores= new DoctorModel.Response(idDoc.Name, idDoc.LicenseNumber, idDoc.IsActive,idDoc.Id);
+            var doctores = new DoctorModel.Response(idDoc.Name, idDoc.LicenseNumber, idDoc.IsActive, idDoc.Id);
             return Ok(doctores);
         }
-        [HttpDelete]
-        [Route("api/doctors/{id}")]
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDoctorByID(Guid id)
         {
             var doctor = _persistence.GetDoctors().FirstOrDefault(p => p.Id == id);
-            if (doctor == null || !doctor.IsActive )
+            if (doctor == null || !doctor.IsActive)
             {
                 return NotFound("El doctor no esta activo o no existe");
             }
@@ -95,10 +100,32 @@ namespace Dsw2026Ej15.Api.Controllers
             {
                 Console.WriteLine($"eliminado: {d.IsActive}");
             }
-            
+
             return NoContent();
         }
     }
 
-    }
+}
 
+// RECORDATORIO - ERROR DE ID EN RESPUESTA DEL ENDPOINT
+//
+// Tuvimos un bug donde el DELETE siempre devolvía 404.
+// El problema no estaba en el DeleteById ni en la lógica de baja,
+// sino en el record Response del DoctorModel.
+//
+// El Response devolvía el SpecialityID en lugar del Id del doctor:
+//
+//    ANTES (MAL):
+//    public record Response(string Name, string LicenseNumber, bool isActive, Guid SpecialityID);
+//
+//    DESPUÉS (BIEN):
+//    public record Response(string Name, string LicenseNumber, bool isActive, Guid Id);
+//
+// Entonces cuando hacía el GET para ver los doctores, el "id" que
+// me mostraba Swagger era el id de la especialidad del doctor, no el suyo propio.
+// Al usar ese id en el DELETE, obviamente no encontraba ningún doctor con ese Guid
+// y devolvía 404.
+//
+// LECCIÓN: Cuando un endpoint devuelve 404 inesperado, verificar primero
+// que los IDs que estamos usando realmente corresponden a la entidad correcta.
+// No asumir que el id que muestra la respuesta es el que necesitamos.

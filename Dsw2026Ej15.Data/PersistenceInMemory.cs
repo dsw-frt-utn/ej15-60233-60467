@@ -66,6 +66,7 @@ namespace Dsw2026Ej15.Data
                     if (specialitie != null)
                     {
                         Doctor d = new Doctor(data.Name, data.LicenceNumber, data.IsActive, specialitie, data.id);
+                        doctores.Add(d);
                     }
                 }
             }
@@ -90,8 +91,7 @@ namespace Dsw2026Ej15.Data
         //Funcion de carga de datos Json
         private List<T>? CargarDatosDeArchivos<T>(string file) //Preguntarle al profesor como funciona, como declarar el path.
         {
-            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "specialities.json");
-            //En clase el combine , en el parametro string va "sources","specialities"
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sources", "specialities.json");            //En clase el combine , en el parametro string va "sources","specialities"
             string jsonContent = File.ReadAllText(jsonPath);
             var options = new JsonSerializerOptions
             {
@@ -105,9 +105,9 @@ namespace Dsw2026Ej15.Data
         #endregion
         #region //InicializarDatos
         public void InicializarDatos()
-        {
+        {   InicializarSpecialities();
             InicializarDoctores();
-            InicializarSpecialities();
+            
         }
 
         #endregion
